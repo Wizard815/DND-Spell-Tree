@@ -3,19 +3,22 @@
 import { useMemo, useState, useSyncExternalStore } from 'react';
 import SpellTree from './tree/SpellTree.tsx';
 import { localBackend, Store } from './local/store.ts';
-import { manaNow, poolMax, rulesOf } from './local/model.ts';
+import { checkBonus, highest, manaNow, poolMax, randomCharacter, rulesOf } from './local/model.ts';
 import { alexandriaBackend, loadLink, saveLink, type Link } from './alexandria/client.ts';
 import CharacterPage from './pages/Character.tsx';
 import SettingsPage from './pages/Settings.tsx';
 import { Characters } from './pages/Characters.tsx';
 
 const store = new Store();
+// The demo build (VITE_DEMO=1) starts with a random character to play with.
+if (import.meta.env.VITE_DEMO && !store.book.characters.length) store.change((b) => { const n = randomCharacter(b); b.characters.push(n); b.activeId = n.id; });
 type Tab = 'tree' | 'character' | 'settings';
 
 export default function App() {
   const version = useSyncExternalStore(store.subscribe, store.getVersion);
   const [tab, setTab] = useState<Tab>(() => (store.book.characters.length ? 'tree' : 'character'));
   const [link, setLinkState] = useState<Link | null>(() => loadLink());
+  const [editSpell, setEditSpell] = useState<string | null>(null);
   const [useLink, setUseLink] = useState<boolean>(() => !!loadLink());
   const setLink = (l: Link | null) => { saveLink(l); setLinkState(l); setUseLink(!!l); };
   const backend = useMemo(() => (useLink && link ? alexandriaBackend(link) : localBackend(store)), [useLink, link]);
@@ -31,9 +34,21 @@ export default function App() {
         <div className="brand"><span aria-hidden="true">✦</span> Spell Tree</div>
         <nav className="tabs" aria-label="Pages">
           {(['tree', 'character', 'settings'] as Tab[]).map((t) => (
-            <button key={t} type="button" aria-current={tab === t ? 'page' : undefined} onClick={() => setTab(t)}>{t === 'tree' ? 'Tree' : t === 'character' ? 'Character' : 'Settings'}</button>
+            <button key={t} type="button" aria-current={tab === t ? 'page' : undefined} onClick={() => { setTab(t); setEditSpell(null); }}>{t === 'tree' ? 'Tree' : t === 'character' ? 'Character' : 'Settings'}</button>
           ))}
         </nav>
+        {!onAlex && c && (
+          <div className="stats" aria-label="Character stats">
+            <span className="stat"><small>{c.className || 'Caster'}</small><b>Level {c.level}</b></span>
+            <span className="stat mana" aria-label={`Mana ${now} of ${max}`}><small>Mana</small><b>{now} / {max}</b><i className="meter"><span style={{ width: `${max ? Math.max(0, Math.min(100, (now / max) * 100)) : 0}%` }} /></i></span>
+            <span className="stat"><small>Casts up to</small><b>{highest(c) ? `Level ${highest(c)}` : 'Cantrips'}</b></span>
+            <span className="stat"><small>{c.castingAbility.toUpperCase()}</small><b>{c.score ?? '–'}</b></span>
+            <span className="stat"><small>Checks</small><b>d20 + {checkBonus(c)}</b></span>
+            <span className="stat"><small>Known</small><b>{c.known.length}</b></span>
+            {c.studies.some((x) => x.status === 'studying' || x.status === 'ready') && <span className="stat"><small>Studying</small><b>{c.studies.filter((x) => x.status === 'studying' || x.status === 'ready').length}</b></span>}
+            <button type="button" className="stat edit" onClick={() => setTab('character')}>Edit</button>
+          </div>
+        )}
         <div className="who">
           {link && (
             <button type="button" className="mode" onClick={() => setUseLink(!useLink)} title="Switch between this device and the Alexandria world">
@@ -43,21 +58,14 @@ export default function App() {
           {!onAlex && <Characters store={store} onNew={() => setTab('character')} />}
         </div>
       </header>
-      {!onAlex && c && (
-        <div className="manabar" aria-label={`Mana ${now} of ${max}`}>
-          <span>{c.name}</span>
-          <div className="meter"><span style={{ width: `${max ? Math.max(0, Math.min(100, (now / max) * 100)) : 0}%` }} /></div>
-          <b>{now} / {max}</b>
-        </div>
-      )}
       <main className="main">
         {tab === 'tree' && (onAlex || c
-          ? <SpellTree backend={backend} reloadKey={onAlex ? link?.worldId : `${version}:${c?.id}`} />
+          ? <SpellTree backend={backend} reloadKey={onAlex ? link?.worldId : `${version}:${c?.id}`} onEditRequirements={onAlex ? undefined : (s) => { setEditSpell(s.id); setTab('settings'); }} />
           : <p className="empty">Make a character first, on the Character page.</p>)}
         {tab === 'character' && (onAlex
           ? <p className="empty">Your character lives in {link!.worldName} on Alexandria. Switch to "This device" (top right) to use the app's own characters.</p>
           : <CharacterPage store={store} />)}
-        {tab === 'settings' && <SettingsPage store={store} link={link} setLink={setLink} />}
+        {tab === 'settings' && <SettingsPage store={store} link={link} setLink={setLink} focus={editSpell} />}
       </main>
     </div>
   );

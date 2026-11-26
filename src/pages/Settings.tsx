@@ -5,6 +5,7 @@ import { checkSpellRules, PLAN_COSTS } from '../engine/rules.ts';
 import { importProfile, importSpells, normalizeBook, SRD_ATTRIBUTION, spells } from '../local/model.ts';
 import type { Store } from '../local/store.ts';
 import { signIn, type Link } from '../alexandria/client.ts';
+import Requirements from './Requirements.tsx';
 
 function download(name: string, data: unknown) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
@@ -14,7 +15,7 @@ function download(name: string, data: unknown) {
 }
 const readFile = (f: File) => f.text();
 
-export default function SettingsPage({ store, link, setLink }: { store: Store; link: Link | null; setLink: (l: Link | null) => void }) {
+export default function SettingsPage({ store, link, setLink, focus }: { store: Store; link: Link | null; setLink: (l: Link | null) => void; focus?: string | null }) {
   const b = store.book;
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
@@ -25,6 +26,7 @@ export default function SettingsPage({ store, link, setLink }: { store: Store; l
   return (
     <div className="stack">
       {(msg || err) && <p className={err ? 'err' : 'note'} role={err ? 'alert' : 'status'}>{err || msg}</p>}
+      {focus && <Requirements key={focus} store={store} focus={focus} />}
       <Connect link={link} setLink={setLink} />
 
       <section className="card stack">
@@ -58,6 +60,7 @@ export default function SettingsPage({ store, link, setLink }: { store: Store; l
         </div>
         <p className="muted tiny">An Alexandria DM exports a profile from Codex → Settings → Spell rules. Spells use Alexandria's spell format.</p>
       </section>
+      {!focus && <Requirements store={store} />}
 
       <section className="card stack">
         <h3>Rules</h3>

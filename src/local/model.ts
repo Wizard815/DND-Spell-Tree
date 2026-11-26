@@ -76,6 +76,41 @@ export function newCharacter(name: string, o: Partial<Character> = {}): Characte
   };
 }
 
+/** Classes a random character can be: their caster type and casting ability. */
+export const CLASSES: { name: string; type: 'full' | 'half' | 'third'; ability: Ability; list: string }[] = [
+  { name: 'Wizard', type: 'full', ability: 'int', list: 'Wizard' }, { name: 'Sorcerer', type: 'full', ability: 'cha', list: 'Sorcerer' },
+  { name: 'Cleric', type: 'full', ability: 'wis', list: 'Cleric' }, { name: 'Druid', type: 'full', ability: 'wis', list: 'Druid' },
+  { name: 'Bard', type: 'full', ability: 'cha', list: 'Bard' }, { name: 'Warlock', type: 'full', ability: 'cha', list: 'Warlock' },
+  { name: 'Paladin', type: 'half', ability: 'cha', list: 'Paladin' }, { name: 'Ranger', type: 'half', ability: 'wis', list: 'Ranger' },
+  { name: 'Eldritch Knight', type: 'third', ability: 'int', list: 'Wizard' },
+];
+const FIRST = ['Mira', 'Thorne', 'Ilsa', 'Corvin', 'Wren', 'Dax', 'Selene', 'Orrin', 'Kael', 'Brisa', 'Fenn', 'Yara', 'Lio', 'Maren', 'Tobias', 'Ash'];
+const LAST = ['Emberfall', 'Quill', 'Duskwhisper', 'Stormvale', 'Hollow', 'Brightwater', 'Vane', 'Ironleaf', 'Sable', 'Rook'];
+
+/**
+ * A random character for trying the app: a class, a level from 1 to 20, a
+ * casting score, and spells from the class list that it could have learned.
+ * `rnd` is Math.random by default; tests pass their own.
+ */
+export function randomCharacter(b: Book, rnd: () => number = Math.random): Character {
+  const pick = <T,>(xs: T[]) => xs[Math.floor(rnd() * xs.length)];
+  const cls = pick(CLASSES);
+  const level = 1 + Math.floor(rnd() * 20);
+  const c = newCharacter(`${pick(FIRST)} ${pick(LAST)}`, {
+    className: cls.name, level, castingAbility: cls.ability, score: 14 + Math.floor(rnd() * 7) - (level < 4 ? 1 : 0),
+    casterLevels: { [cls.type]: level },
+  });
+  c.abilities.silent = rnd() < 0.25;
+  const top = highest(c);
+  const pool = spells(b).filter((s) => s.classes?.includes(cls.list) && s.level <= top);
+  const shuffled = pool.map((s) => ({ s, k: rnd() })).sort((x, y) => x.k - y.k).map((x) => x.s);
+  const cantrips = top >= 0 ? shuffled.filter((s) => s.level === 0).slice(0, 3 + Math.floor(rnd() * 2)) : [];
+  const want = Math.min(pool.length, 2 + level + Math.floor(rnd() * 3));
+  const leveled = shuffled.filter((s) => s.level > 0).slice(0, want);
+  c.known = [...cantrips, ...leveled].map((s) => ({ id: s.id, how: 'learned' as const }));
+  return c;
+}
+
 // ---- reading the book ----------------------------------------------------------------------------------------
 
 export function spells(b: Book): Spell[] {

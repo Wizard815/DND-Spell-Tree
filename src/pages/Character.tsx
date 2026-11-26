@@ -1,7 +1,7 @@
 // A character: who they are, their caster levels, mana (with rests, a new
 // turn and changes like a potion), the spells they know with Cast, and the log.
 import { useMemo, useState } from 'react';
-import { cast, changeMana, checkBonus, highest, manaNow, newCharacter, newTurn, poolMax, quote, rest, rulesOf, spellMap, spells, type Ability, type Character } from '../local/model.ts';
+import { randomCharacter, cast, changeMana, checkBonus, highest, manaNow, newCharacter, newTurn, poolMax, quote, rest, rulesOf, spellMap, spells, type Ability, type Character } from '../local/model.ts';
 import type { Store } from '../local/store.ts';
 
 const num = (v: string, lo: number, hi: number) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : lo; };
@@ -34,7 +34,8 @@ function Sheet({ store, c }: { store: Store; c: Character }) {
     <div className="stack">
       <section className="card stack">
         <div className="row between"><h2>{c.name}</h2>
-          <button type="button" className="btn small danger" onClick={() => { if (confirmDelete(c.name)) store.change((bk) => { bk.characters = bk.characters.filter((x) => x.id !== c.id); bk.activeId = bk.characters[0]?.id ?? null; }); }}>Delete</button>
+          <span className="row"><button type="button" className="btn small" onClick={() => store.change((bk) => { const n = randomCharacter(bk); bk.characters.push(n); bk.activeId = n.id; })}>🎲 Random character</button>
+          <button type="button" className="btn small danger" onClick={() => { if (confirmDelete(c.name)) store.change((bk) => { bk.characters = bk.characters.filter((x) => x.id !== c.id); bk.activeId = bk.characters[0]?.id ?? null; }); }}>Delete</button></span>
         </div>
         <div className="grid">
           <label>Name<input value={c.name} onChange={(e) => set((x) => { x.name = e.target.value.slice(0, 60); })} /></label>

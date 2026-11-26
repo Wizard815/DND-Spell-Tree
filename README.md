@@ -7,11 +7,16 @@ world and shows that world's tree.
 
 ## What it does
 
-- **The tree.** Every spell, grouped by school of magic. Spells that mix two
-  elements (Fire and Cold, Acid and Poison...) sit in their own groups after
-  the schools; spells without a school go under Others. Spells start dark. A
-  spell the character can study turns grey; known spells light up in their
-  school's color.
+- **The tree.** Every spell as a web around the character: a region per
+  school of magic, cantrips nearest the middle and higher levels farther out.
+  Early spells link into the schools next to them, and spells that share an
+  element (fire, cold...) are tied with a line in that element's colour. Each
+  spell shows an icon for its element, or its school when it has none ("What
+  the icons mean" under the legend). Known spells glow gold, ones the
+  character can study now are white, locked ones are dim, and unknown ones
+  show no icon or name. The top bar shows the character's level, mana, the
+  highest spell level they can cast, their casting score, check bonus and
+  known spells.
 - **Learning a spell.** Pick a spell to see what it still needs and how long
   it takes. Each 8-hour downtime day earns 1 to 3 study points: 1 alone, 2
   with a text, 3 with a mentor (a lab adds 1). For a 3rd-level spell:
@@ -36,8 +41,27 @@ world and shows that world's tree.
   Settings (the same `spellRules` JSON an Alexandria world uses), or import a
   DM's Alexandria spell rules profile with its recipes and lines.
 
-Without recipes, a spell is taught by its school: the tier gate counts known
-spells of the same school or element.
+## Spell requirements
+
+Every spell has requirements. With no recipe, a spell is taught by its
+school: the character must know spells of the same school or element (one
+level lower for a leveled spell), be able to cast its level, and pass an
+Arcana check for the higher levels. A recipe names the exact spells, 1 to 5,
+that teach a spell instead.
+
+To change a spell's requirements: open it on the tree and press **Edit
+requirements**, or go to Settings → Spell requirements. Type the spell, add
+the spells that teach it, and save. **Use its school** goes back to the
+default. A DM can also bring a whole set of recipes from Alexandria with
+Settings → Import an Alexandria profile.
+
+## Try it
+
+**Random character** (on the Character page or in the character menu) makes
+a character with a class, a level from 1 to 20, a casting score and spells
+from its class list. Change any of it on the Character page. A demo build
+(`VITE_DEMO=1 npx vite build --outDir dist-demo`) starts with one already
+made.
 
 ## Run it
 
