@@ -41,7 +41,7 @@ export default function App() {
           <div className="stats" aria-label="Character stats">
             <span className="stat"><small>{c.className || 'Caster'}</small><b>Level {c.level}</b></span>
             <span className="stat mana" aria-label={`Mana ${now} of ${max}`}><small>Mana</small><b>{now} / {max}</b><i className="meter"><span style={{ width: `${max ? Math.max(0, Math.min(100, (now / max) * 100)) : 0}%` }} /></i></span>
-            <span className="stat"><small>Casts up to</small><b>{highest(c) ? `Level ${highest(c)}` : 'Cantrips'}</b></span>
+            <span className="stat" title="From the caster levels: a full caster casts up to half their level (rounded up, max 9). See Character for half and third casters."><small>Casts up to</small><b>{highest(c) ? `Level ${highest(c)}` : 'Cantrips'}</b></span>
             <span className="stat"><small>{c.castingAbility.toUpperCase()}</small><b>{c.score ?? '–'}</b></span>
             <span className="stat"><small>Checks</small><b>d20 + {checkBonus(c)}</b></span>
             <span className="stat"><small>Known</small><b>{c.known.length}</b></span>

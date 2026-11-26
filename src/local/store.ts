@@ -1,7 +1,7 @@
 // Keeps the book on this device (localStorage) and tells the app when it
 // changes. If storage is blocked (a private window) the book lives in memory
 // for this visit.
-import { active, emptyBook, finalCheck, normalizeBook, scrollCast, spellMap, startStudy, stopStudy, studyDaysLog, studyPlan, studyView, tree, type Book, type Character } from './model.ts';
+import { active, emptyBook, finalCheck, giveSpell, normalizeBook, scrollCast, spellMap, startStudy, stopStudy, studyDaysLog, studyPlan, studyView, tree, type Book, type Character } from './model.ts';
 import type { TreeBackend } from '../tree/types.ts';
 
 const KEY = 'spelltree.book.v1';
@@ -43,5 +43,7 @@ export function localBackend(store: Store): TreeBackend {
     check: (sid, d20) => withMe((b, c) => finalCheck(b, c, sid, d20)),
     scrollCast: (sid) => withMe((b, c) => scrollCast(b, c, sid)),
     stop: (sid) => withMe((b, c) => stopStudy(b, c, sid)),
+    give: (id) => withMe((b, c) => giveSpell(b, c, id)),
+    canOverride: true,
   };
 }

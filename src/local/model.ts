@@ -250,11 +250,12 @@ const log = (c: Character, e: Omit<LogEntry, 'at'>) => { c.log.unshift({ at: now
 const findStudy = (c: Character, sid: string) => { const x = c.studies.find((s) => s.id === sid); if (!x) throw new Error('Study not found'); return x; };
 const openStudy = (c: Character, spellId: string) => c.studies.find((x) => x.spellId === spellId && x.status !== 'learned') ?? null;
 
-export function startStudy(b: Book, c: Character, spellId: string, o: { source: StudySource; lab: boolean; scroll: boolean; arcana?: number }): Study {
+export function startStudy(b: Book, c: Character, spellId: string, o: { source: StudySource; lab: boolean; scroll: boolean; arcana?: number; anyway?: boolean }): Study {
   const p = studyPlan(b, c, spellId, o.source, o.lab);
-  if (!p.canStart) throw new Error(`Not yet: ${p.missing.join('; ')}`);
+  if (!p.canStart && !o.anyway) throw new Error(`Not yet: ${p.missing.join('; ')}`);
   const cur = openStudy(c, spellId);
-  if (p.arcanaDC !== null && !cur) {
+  if (o.anyway && !cur) log(c, { kind: 'study', note: `DM: may study ${p.name} without its requirements${p.missing.length ? ` (${p.missing.join('; ')})` : ''}` });
+  if (p.arcanaDC !== null && !cur && !o.anyway) {
     if (o.arcana === undefined || !Number.isFinite(o.arcana)) throw new Error(`Starting needs an Arcana check, DC ${p.arcanaDC}`);
     if (o.arcana < p.arcanaDC) { log(c, { kind: 'study', note: `Arcana ${o.arcana} vs ${p.arcanaDC}: not yet able to study ${p.name}` }); throw new Error(`The Arcana check failed (${o.arcana} vs DC ${p.arcanaDC}). Try again after a long rest.`); }
   }
@@ -305,6 +306,16 @@ export function finalCheck(b: Book, c: Character, sid: string, d20?: number, rol
   }
   log(c, { kind: out.learned ? 'learn' : 'study', note: `Final check for ${s?.name}: d20 ${die} + ${bonus} = ${out.total} vs DC ${out.dc}: ${out.outcome}` });
   return { ...out, d20: die, bonus, study: studyView(b, x) };
+}
+
+/** DM: give a spell outright. It is known as a gift; an open study of it ends. */
+export function giveSpell(b: Book, c: Character, spellId: string): void {
+  const s = spellMap(b).get(spellId);
+  if (!s) throw new Error('No such spell');
+  if (c.known.some((k) => k.id === spellId)) throw new Error(`${c.name} already knows ${s.name}`);
+  c.known.push({ id: spellId, how: 'gift' });
+  c.studies = c.studies.filter((x) => x.spellId !== spellId || x.status === 'learned');
+  log(c, { kind: 'learn', note: `Given by the DM: ${s.name}` });
 }
 
 export function scrollCast(b: Book, c: Character, sid: string): Study {

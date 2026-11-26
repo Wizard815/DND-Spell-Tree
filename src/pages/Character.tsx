@@ -57,6 +57,16 @@ function Sheet({ store, c }: { store: Store; c: Character }) {
           <span className="muted tiny">Abilities your DM grants.</span>
         </div>
         <p className="muted tiny">Mana pool {max} · casts spells up to level {highest(c)} · final checks d20 + {checkBonus(c)}</p>
+        <details className="muted tiny">
+          <summary>How the highest spell level works</summary>
+          <p>It comes from the caster levels above, the way spell slots do.</p>
+          <ul>
+            <li><b>Full casters</b> (wizard, cleric, druid, bard, sorcerer): half their level, rounded up, up to 9. Level 1 casts 1st, 3 casts 2nd, 5 casts 3rd, and 17 casts 9th.</li>
+            <li><b>Half casters</b> (paladin, ranger): 1st at level 1, 2nd at 5, 3rd at 9, 4th at 13, 5th at 17.</li>
+            <li><b>Third casters</b> (eldritch knight, arcane trickster): 1st at level 3, 2nd at 7, 3rd at 13, 4th at 19.</li>
+            <li><b>More than one type:</b> add full levels, half the half-caster levels and a third of the third-caster levels (rounded down), then read that total as a full caster.</li>
+          </ul>
+        </details>
       </section>
 
       <Mana store={store} c={c} max={max} now={now} run={run} />
