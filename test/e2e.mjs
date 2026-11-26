@@ -35,9 +35,13 @@ try {
     await page.getByLabel('Spell to add').fill('Shatter');
     await page.getByRole('button', { name: 'Add', exact: true }).click();
     await page.getByRole('button', { name: 'Tree' }).click();
-    await page.getByRole('region', { name: 'Evocation' }).waitFor();
+    await page.getByRole('group', { name: 'Evocation' }).waitFor();
     if (shots) await page.screenshot({ path: `${shots}/tree-${vp.width}.png`, fullPage: false });
     // Fireball can be learned: the study table is the plan's.
+    // Find it by search (Enter opens it and brings it into view), check its node, then close and click the node itself.
+    await page.getByLabel('Search spells').fill('Fireball');
+    await page.getByLabel('Search spells').press('Enter');
+    await page.getByRole('complementary', { name: 'Fireball details' }).getByRole('button', { name: 'Close' }).click();
     await page.getByRole('button', { name: /^Fireball, Level 3, Can learn/ }).click();
     const panel = page.getByRole('complementary', { name: 'Fireball details' });
     await panel.getByRole('cell', { name: 'With a mentor' }).waitFor();

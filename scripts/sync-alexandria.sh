@@ -7,7 +7,7 @@ alx="${1:?path to the alexandria checkout}"
 here="$(cd "$(dirname "$0")/.." && pwd)"
 dest="$alx/web/src/features/spells/tree"
 mkdir -p "$dest"
-for f in types.ts treeCss.ts SpellTree.tsx; do
+for f in types.ts treeCss.ts TreeGraph.tsx SpellTree.tsx; do
   { echo "// Copied from Wizard815/DND-Spell-Tree src/tree/$f by scripts/sync-alexandria.sh: change it there."; cat "$here/src/tree/$f"; } > "$dest/$f"
 done
 cp "$alx/librarian/src/features/spells/rules.ts" "$here/src/engine/rules.ts"
