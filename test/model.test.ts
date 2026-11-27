@@ -24,6 +24,10 @@ test('Model: the study table for a 3rd-level spell is 13 / 7 / 5 days, 250 / 250
   const p = studyPlan(b, c, 'srd:fireball', 'text');
   assert.deepEqual(p.missing, []);
   assert.deepEqual([p.days, p.gold, p.needed, p.finalDC, p.checkBonus], [{ alone: 13, text: 7, mentor: 5 }, { alone: 250, text: 250, mentor: 500 }, 13, 15, 6]);
+  // Any class may study it; on their own class list it earns a point a day more (learning.classBonus).
+  const own = { ...c, className: 'Wizard' };
+  assert.deepEqual(studyPlan(b, own, 'srd:fireball', 'text').days, { alone: 7, text: 5, mentor: 4 });
+  assert.deepEqual(studyPlan(b, { ...c, className: 'Cleric' }, 'srd:fireball', 'text').days, { alone: 13, text: 7, mentor: 5 }, 'no penalty off the list');
   const none = studyPlan(b, wizard(), 'srd:fireball');
   assert.match(none.missing.join(), /know 2 spells of its school or lines one level lower \(knows 0\)/);
 });

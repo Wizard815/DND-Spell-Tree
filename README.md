@@ -19,7 +19,9 @@ world and shows that world's tree.
   known spells.
 - **Learning a spell.** Pick a spell to see what it still needs and how long
   it takes. Each 8-hour downtime day earns 1 to 3 study points: 1 alone, 2
-  with a text, 3 with a mentor (a lab adds 1). For a 3rd-level spell:
+  with a text, 3 with a mentor (a lab adds 1). Any class can study any
+  spell; a spell on your own class list earns 1 more a day. For a 3rd-level
+  spell off your class list:
 
   | How | Days | Gold |
   |---|---|---|

@@ -195,20 +195,28 @@ export function studyPlan(b: Book, c: Character, spellId: string, source: StudyS
     if (g.kind === 'arcana') arcanaDC = g.dc; else missing.push(gateText(g));
   }
   const gate = r.learning.gates[Math.max(0, Math.min(9, s.level))];
+  const own = ownClass(b, c, s.id);
   const coin = studyCoin(cx, source, r);
   return {
     spellId: s.id, name: s.name, level: s.level, recipe: { id: rc.id, prereqs: rc.byName }, source, lab, hybrid, missing, canStart: missing.length === 0, arcanaDC, needed,
-    perDay: dailyProgress(source, lab, r),
-    days: Object.fromEntries(STUDY_SOURCES.map((x) => [x, gate.sources.includes(x) ? studyDays(needed, 0, dailyProgress(x, lab, r)) : null])) as StudyPlan['days'],
+    perDay: dailyProgress(source, lab, r, own),
+    days: Object.fromEntries(STUDY_SOURCES.map((x) => [x, gate.sources.includes(x) ? studyDays(needed, 0, dailyProgress(x, lab, r, own)) : null])) as StudyPlan['days'],
     materials: coin.materials, mentorFee: coin.mentorFee,
     gold: Object.fromEntries(STUDY_SOURCES.map((x) => { const g = studyCoin(cx, x, r); return [x, g.materials + g.mentorFee]; })) as StudyPlan['gold'],
     finalDC: finalCheckDC(s.level, r), checkBonus: checkBonus(c), scrollPoints: scrollRule(s.level, needed, r).points,
   };
 }
 
-export function studyView(b: Book, x: LocalStudy): Study {
+/** Whether a spell is on the character's own class list ("Wizard", "Wizard 6 / Paladin 4"): it studies faster (learning.classBonus). */
+export function ownClass(b: Book, c: Character | null | undefined, spellId: string): boolean {
+  const text = String(c?.className ?? '').toLowerCase();
+  const s = spellMap(b).get(spellId);
+  return !!text.trim() && !!s && (s.classes ?? []).some((x) => { const w = String(x).toLowerCase().replace(/[^a-z ]/g, ''); return !!w && new RegExp(`\\b${w}\\b`).test(text); });
+}
+
+export function studyView(b: Book, x: LocalStudy, c?: Character | null): Study {
   const r = rulesOf(b);
-  const per = dailyProgress(x.source, x.lab, r);
+  const per = dailyProgress(x.source, x.lab, r, ownClass(b, c, x.spellId));
   const { createdAt: _c, ...rest } = x;
   return { ...rest, name: spellMap(b).get(x.spellId)?.name ?? x.spellId, perDay: per, daysLeft: studyDays(x.needed, x.banked, per) };
 }
@@ -262,7 +270,7 @@ export function startStudy(b: Book, c: Character, spellId: string, o: { source: 
   if (cur) {
     Object.assign(cur, { source: p.source, lab: p.lab, needed: p.needed, materials: p.materials, mentorFee: p.mentorFee, status: cur.banked >= p.needed ? 'ready' : 'studying' });
     log(c, { kind: 'study', note: `Back to studying ${p.name} (${p.source})` });
-    return studyView(b, cur);
+    return studyView(b, cur, c);
   }
   const banked = o.scroll ? Math.min(p.needed, p.scrollPoints) : 0;
   const x: LocalStudy = {
@@ -271,18 +279,18 @@ export function startStudy(b: Book, c: Character, spellId: string, o: { source: 
   };
   c.studies.push(x);
   log(c, { kind: 'study', note: `Started studying ${p.name} (${p.source}${p.lab ? ', lab' : ''}${o.scroll ? ', with a scroll' : ''}): ${p.needed} points, ${p.materials + p.mentorFee} gp` });
-  return studyView(b, x);
+  return studyView(b, x, c);
 }
 
 export function studyDaysLog(b: Book, c: Character, sid: string, n: number): Study {
   const x = findStudy(c, sid);
   if (x.status !== 'studying') throw new Error(x.status === 'ready' ? 'The study is complete: roll the final check' : `This study is ${x.status}`);
   if (!Number.isInteger(n) || n < 1 || n > 365) throw new Error('Days must be 1 to 365');
-  x.banked = Math.min(x.needed, x.banked + n * dailyProgress(x.source, x.lab, rulesOf(b)));
+  x.banked = Math.min(x.needed, x.banked + n * dailyProgress(x.source, x.lab, rulesOf(b), ownClass(b, c, x.spellId)));
   x.days += n;
   if (x.banked >= x.needed) x.status = 'ready';
   log(c, { kind: 'study', note: `${n} downtime day${n === 1 ? '' : 's'} studying ${spellMap(b).get(x.spellId)?.name ?? x.spellId}` });
-  return studyView(b, x);
+  return studyView(b, x, c);
 }
 
 export function finalCheck(b: Book, c: Character, sid: string, d20?: number, roll: () => number = () => 1 + Math.floor(Math.random() * 20)): CheckOut {
@@ -305,7 +313,7 @@ export function finalCheck(b: Book, c: Character, sid: string, d20?: number, rol
     x.waitLongRest = true;
   }
   log(c, { kind: out.learned ? 'learn' : 'study', note: `Final check for ${s?.name}: d20 ${die} + ${bonus} = ${out.total} vs DC ${out.dc}: ${out.outcome}` });
-  return { ...out, d20: die, bonus, study: studyView(b, x) };
+  return { ...out, d20: die, bonus, study: studyView(b, x, c) };
 }
 
 /** DM: give a spell outright. It is known as a gift; an open study of it ends. */
@@ -326,7 +334,7 @@ export function scrollCast(b: Book, c: Character, sid: string): Study {
   x.banked = Math.max(0, x.banked - lose);
   if (x.status !== 'learned' && x.status !== 'stopped') x.status = x.banked >= x.needed ? 'ready' : 'studying';
   log(c, { kind: 'study', note: `Cast the scroll${lose ? `: ${lose} study points of its help are lost` : ''}` });
-  return studyView(b, x);
+  return studyView(b, x, c);
 }
 
 export function stopStudy(b: Book, c: Character, sid: string): Study {
@@ -334,7 +342,7 @@ export function stopStudy(b: Book, c: Character, sid: string): Study {
   if (x.status === 'learned') throw new Error('Already learned');
   x.status = 'stopped';
   log(c, { kind: 'study', note: `Paused studying (${x.banked} of ${x.needed} points kept)` });
-  return studyView(b, x);
+  return studyView(b, x, c);
 }
 
 export function quote(b: Book, c: Character, spellId: string, at?: number): CastQuote & { spell: Spell } {

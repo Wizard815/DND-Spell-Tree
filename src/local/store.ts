@@ -37,7 +37,7 @@ export function localBackend(store: Store): TreeBackend {
     tree: async () => tree(store.book, store.character()),
     spell: async (id) => spellMap(store.book).get(id) ?? null,
     plan: async (id, source, lab) => studyPlan(store.book, me(), id, source, lab),
-    studies: async () => (store.character()?.studies ?? []).map((x) => studyView(store.book, x)),
+    studies: async () => (store.character()?.studies ?? []).map((x) => studyView(store.book, x, store.character())),
     start: (id, o) => withMe((b, c) => startStudy(b, c, id, o)),
     days: (sid, n) => withMe((b, c) => studyDaysLog(b, c, sid, n)),
     check: (sid, d20) => withMe((b, c) => finalCheck(b, c, sid, d20)),
