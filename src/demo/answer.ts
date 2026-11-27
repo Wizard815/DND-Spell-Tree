@@ -16,7 +16,8 @@ const RULES: { keys: RegExp; text: string }[] = [
   { keys: /\b(stud(y|ying)|learn(ing)?|points?)\b/, text: 'Learning a spell takes study. Each 8-hour downtime day earns 1 point alone, 2 with a text, 3 with a mentor (+1 in a lab). A 3rd-level spell needs 13 points: 13 days alone, 7 with a text, 5 with a mentor. Spells on your own class list need 25% fewer points. Then a final check: d20 + casting modifier + proficiency.' },
   { keys: /\b(final|check|fail(ed)?|dc)\b/, text: 'When the points are in you roll the final check: d20 + your casting modifier + proficiency against the spell\'s DC (13 for a 2nd-level spell, 15 for a 3rd). Fail and you try again after a long rest.' },
   { keys: /\bscrolls?\b/, text: 'A scroll is a study aid: studying from it adds points and you keep it. Casting the scroll uses it up, and the study help with it.' },
-  { keys: /\b(tree|dark|grey|gray|locked|unknown)\b/, text: 'Every spell is on the tree, by school. Lit gold: you know it. Grey: you can start studying it. Dim: you need other spells first. Dark: out of reach for now (too high a level, or nothing you know leads there).' },
+  { keys: /\b(bubbles?|groups?|path|next)\b/, text: 'Each school\'s spells sit in bubbles of about four, level by level. The first bubbles are open from the start. Learn any one spell in a bubble and the next bubble on that path opens; the rest of the bubble stays open to learn too.' },
+  { keys: /\b(tree|dark|grey|gray|locked|unknown)\b/, text: 'Every spell is on the tree, by school, in bubbles of about four. Lit gold: you know it. Grey: you can start studying it. Dim: its bubble is next but not open yet, or another need is missing. Dark: out of reach for now (too high a level, or two bubbles away).' },
   { keys: /\b(class|classes|other class|cross)\b/, text: 'Any class can learn any spell. One on your own class list needs 25% fewer study points; there is no penalty for the rest.' },
   { keys: /\b(rest|downtime|travel)\b/, text: 'A long rest refills mana and lets a failed final check be rolled again. Study only happens on downtime days (8 hours each), not on travel or adventure days.' },
   { keys: /\b(repeat|echo|same spell)\b/, text: 'Casting the same leveled spell again before a short rest costs 1 more mana each time. Spells of 6th level and up: once each per long rest.' },
@@ -52,7 +53,7 @@ function searchSpells(b: Book, q: string): Spell[] {
 
 function spellLine(b: Book, c: Character | null, s: Spell): string {
   const cost = s.level ? upcastCost(s.level, s.level, costsOf(b), rulesOf(b), s.manaCost ?? null) : 0;
-  const text = (s.text ?? '').replace(/\s+/g, ' ');
+  const text = (s.text ?? '').replace(/\s+/g, ' ') || `The description is in ${(s as { book?: string }).book ?? 'the book'}.`;
   return `${s.name}: ${lv(s.level)} ${s.school}, ${s.castingTime}, ${s.range}${s.concentration ? ', concentration' : ''}. ${s.level ? `Costs ${cost} mana.` : 'Cantrip: free.'} Lists: ${(s.classes ?? []).join(', ') || 'none'}. ${text.slice(0, 260)}${text.length > 260 ? '…' : ''}${c && c.known.some((k) => k.id === s.id) ? ` ${c.name.split(' ')[0]} knows it.` : ''}`;
 }
 

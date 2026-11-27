@@ -2,7 +2,7 @@
 // importing a profile or more spells, and saving everything to a file.
 import { useState } from 'react';
 import { checkSpellRules, PLAN_COSTS } from '../engine/rules.ts';
-import { importProfile, importSpells, normalizeBook, SRD_ATTRIBUTION, spells } from '../local/model.ts';
+import { importProfile, importSpells, normalizeBook, SRD_ATTRIBUTION, spellSources, spells } from '../local/model.ts';
 import type { Store } from '../local/store.ts';
 import { signIn, type Link } from '../alexandria/client.ts';
 import Requirements from './Requirements.tsx';
@@ -40,6 +40,20 @@ export default function SettingsPage({ store, link, setLink, focus }: { store: S
             e.target.value = '';
           }} /></label>
         </div>
+      </section>
+
+      <section className="card stack">
+        <h3>Spell books</h3>
+        <p className="muted">Turn off the books your table doesn't use. Their spells leave the tree; known spells stay on the character. Spells from books other than the SRD have no description here: it's in the book.</p>
+        <fieldset className="grid books">
+          <legend className="sr-only">Spell books</legend>
+          {spellSources(b).map((x) => (
+            <label key={x.id} className="check">
+              <input type="checkbox" checked={x.on} onChange={(e) => store.change((bk) => { bk.sources = { ...(bk.sources ?? {}), [x.id]: e.target.checked }; })} />
+              <span>{x.name} <small className="muted">({x.count})</small></span>
+            </label>
+          ))}
+        </fieldset>
       </section>
 
       <section className="card stack">

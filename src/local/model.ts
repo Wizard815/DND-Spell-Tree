@@ -3,6 +3,8 @@
 // is plain data in, data out (no storage, no React), so the tests run it with
 // Node and the backend in ./backend.ts only loads and saves.
 import srdFile from '../data/srd-5.2.1-spells.json' with { type: 'json' };
+import officialFile from '../data/official-spells.json' with { type: 'json' };
+import { bubbleOf, bubbleOpen, makeBubbles, type Bubble } from '../engine/bubbles.ts';
 import {
   PLAN_COSTS, STUDY_SOURCES, checkSpellRules, complexity, dailyProgress, extraRecipeSpells, finalCheckDC, gradeFinalCheck, highestSpellLevel, isHybrid,
   learnGates, lineMastery, multiclassHighest, multiclassPool, poolFor, quoteCast, resolveRules, scroll as scrollRule, studyCoin, studyDays, studyPoints, upcastCost,
@@ -57,10 +59,25 @@ export interface Book {
   extraSpells: Spell[];
   /** Spell lines. Left null, the lines are the elements in each spell's damage types. */
   lines: Line[] | null;
+  /** Spell books turned off at this table ('srd', a book code like 'XGE', or 'homebrew'). Missing means on. */
+  sources?: Record<string, boolean>;
 }
 
 const SRD = srdFile as unknown as { attribution: string; spells: Spell[] };
 export const SRD_ATTRIBUTION = SRD.attribution;
+/** Official spells outside the SRD: name, level, school, class lists and book, no rules text. */
+const OFFICIAL = officialFile as unknown as { books: Record<string, string>; spells: Spell[] };
+
+/** The spell books a table can turn on or off, with how many spells each adds. */
+export function spellSources(b: Book): { id: string; name: string; count: number; on: boolean }[] {
+  const on = (id: string) => b.sources?.[id] !== false;
+  const count = (code: string) => OFFICIAL.spells.filter((s) => s.source === code).length;
+  return [
+    { id: 'srd', name: 'SRD 5.2.1 (free, with full text)', count: SRD.spells.length, on: on('srd') },
+    ...Object.entries(OFFICIAL.books).map(([id, name]) => ({ id, name, count: count(id), on: on(id) })),
+    { id: 'homebrew', name: 'Your own spells (imported)', count: b.extraSpells.length, on: on('homebrew') },
+  ];
+}
 export const ELEMENTS = ['Acid', 'Cold', 'Fire', 'Force', 'Lightning', 'Necrotic', 'Poison', 'Psychic', 'Radiant', 'Thunder'];
 
 export const emptyBook = (): Book => ({ version: 1, characters: [], activeId: null, rules: {}, costs: null, recipes: [], extraSpells: [], lines: null });
@@ -114,9 +131,11 @@ export function randomCharacter(b: Book, rnd: () => number = Math.random): Chara
 // ---- reading the book ----------------------------------------------------------------------------------------
 
 export function spells(b: Book): Spell[] {
+  const on = (id: string) => b.sources?.[id] !== false;
   const out = new Map<string, Spell>();
-  for (const s of SRD.spells) out.set(s.id, s);
-  for (const s of b.extraSpells) out.set(s.id, s);
+  if (on('srd')) for (const s of SRD.spells) out.set(s.id, s);
+  for (const s of OFFICIAL.spells) if (on(String(s.source))) out.set(s.id, s);
+  if (on('homebrew')) for (const s of b.extraSpells) out.set(s.id, s);
   return [...out.values()];
 }
 export const spellMap = (b: Book) => new Map(spells(b).map((s) => [s.id, s]));
@@ -137,6 +156,15 @@ export const manaNow = (c: Character, r: SpellRules) => c.mana ?? poolMax(c, r);
 export const proficiency = (level: number) => 2 + Math.floor((Math.max(1, Math.min(20, level)) - 1) / 4);
 export const mod = (score: number | null) => (score === null ? 0 : Math.floor((score - 10) / 2));
 export const checkBonus = (c: Character) => mod(c.score) + proficiency(c.level);
+
+/** The school bubbles of the book's spells (learning.bubbles); null when the rules have them off. */
+export interface Bubbles { list: Bubble[]; of: Map<string, Bubble>; byId: Map<string, Bubble> }
+export function bubblesOf(b: Book): Bubbles | null {
+  const r = rulesOf(b);
+  if (!r.learning.bubbles?.on) return null;
+  const list = makeBubbles(spells(b).map((s) => ({ id: s.id, name: s.name, level: s.level, school: s.school || 'Others', lines: linesOf(b, s) })), r.learning.bubbles.size);
+  return { list, of: bubbleOf(list), byId: new Map(list.map((x) => [x.id, x])) };
+}
 
 /**
  * What teaches a spell: a recipe the book has for it, else its school. With
@@ -167,10 +195,11 @@ export function gateText(m: LearnMissing): string {
     case 'source': return `study it ${m.allowed.map((s) => (s === 'alone' ? 'alone' : `with a ${s}`)).join(' or ')}`;
     case 'research': return 'a research project (the DM decides)';
     case 'mastery': return `${m.line} mastery ${m.need} (has ${m.have})`;
+    case 'bubble': return `learn a spell in the ${m.name}`;
   }
 }
 
-export function studyPlan(b: Book, c: Character, spellId: string, source: StudySource = 'alone', lab = false): StudyPlan {
+export function studyPlan(b: Book, c: Character, spellId: string, source: StudySource = 'alone', lab = false, bubbles: Bubbles | null | undefined = undefined): StudyPlan {
   const all = spellMap(b);
   const s = all.get(spellId);
   if (!s) throw new Error('Spell not found');
@@ -178,6 +207,14 @@ export function studyPlan(b: Book, c: Character, spellId: string, source: StudyS
   const costs = costsOf(b);
   const known = new Set(c.known.map((k) => k.id));
   const rc = recipeFor(b, s, all, known);
+  // Taught by its school: with bubbles, its bubble opens once a spell in the one before it is known.
+  const bs = rc.id.startsWith('school:') ? (bubbles === undefined ? bubblesOf(b) : bubbles) : null;
+  const bub = (() => {
+    const x = bs?.of.get(s.id);
+    if (!bs || !x) return null;
+    return { b: x, parent: x.parent ? bs.byId.get(x.parent) ?? null : null, open: bubbleOpen(x, bs.byId, known) };
+  })();
+  if (bub) { rc.id = `bubble:${bub.b.id}`; rc.byName = [bub.parent ? `a spell in the ${bub.parent.name}` : `${s.school}: a first bubble, open from the start`]; }
   const lines = linesOf(b, s);
   const hybrid = isHybrid(lines);
   const cx = complexity(s.level, costs, s.manaCost ?? null);
@@ -188,6 +225,7 @@ export function studyPlan(b: Book, c: Character, spellId: string, source: StudyS
   const mastery = lineMastery(c.known, (id) => { const k = all.get(id); return k ? linesOf(b, k) : []; }, r);
   let arcanaDC: number | null = null;
   for (const g of learnGates({
+    bubble: bub ? { open: bub.open, parent: bub.parent?.name ?? '' } : undefined,
     spellLevel: s.level, castCost: upcastCost(s.level, s.level, costs, r, s.manaCost ?? null), knownRecipeLevels: rc.levels, highest: highest(c), casterLevel: c.level,
     abilityScore: c.score, poolMax: poolMax(c, r), source, research: false, arcanaPassed: false,
     hybridMastery: hybrid ? Object.fromEntries(lines.map((l) => [l, mastery[l] ?? 0])) : undefined,
@@ -203,6 +241,7 @@ export function studyPlan(b: Book, c: Character, spellId: string, source: StudyS
     materials: coin.materials, mentorFee: coin.mentorFee,
     gold: Object.fromEntries(STUDY_SOURCES.map((x) => { const g = studyCoin(cx, x, r); return [x, g.materials + g.mentorFee]; })) as StudyPlan['gold'],
     finalDC: finalCheckDC(s.level, r), checkBonus: checkBonus(c), scrollPoints: scrollRule(s.level, needed, r).points,
+    bubble: bub ? { id: bub.b.id, name: bub.b.name, open: bub.open, parent: bub.parent?.name ?? null } : null,
   };
 }
 
@@ -223,6 +262,8 @@ export function studyView(b: Book, x: LocalStudy, c?: Character | null): Study {
 /** Every spell, by school (Others last), hybrids apart, each with its status for this character. */
 export function tree(b: Book, c: Character | null): TreeData {
   const all = spells(b);
+  const bs = bubblesOf(b);
+  const knownIds = new Set((c?.known ?? []).map((k) => k.id));
   const known = new Map((c?.known ?? []).map((k) => [k.id, k.how]));
   const open = new Map((c?.studies ?? []).filter((x) => x.status !== 'learned').map((x) => [x.spellId, x]));
   const out: TreeSpell[] = all.map((s) => {
@@ -236,19 +277,23 @@ export function tree(b: Book, c: Character | null): TreeData {
     else if (st) status = st.status === 'stopped' ? 'stopped' : 'studying';
     else if (!c) status = 'dark';
     else {
-      const p = studyPlan(b, c, s.id);
+      const p = studyPlan(b, c, s.id, 'alone', false, bs);
       missing = p.missing;
       from = p.recipe?.prereqs ?? [];
-      // Dark until the character is near it: a spell above what they can cast, or a recipe with none of its spells known.
-      const far = s.level > highest(c) + 1 || (p.recipe?.id.startsWith('recipe:') && b.recipes.find((x) => x.result === s.id)!.prereqs.every((q) => !known.has(q)));
+      // Dark until the character is near it: a spell above what they can cast, a recipe with none of its spells known,
+      // or a bubble two or more steps away (the bubble before it is not open either).
+      const bb = p.bubble ? bs?.byId.get(p.bubble.id) : undefined;
+      const far = s.level > highest(c) + 1 || (p.recipe?.id.startsWith('recipe:') && b.recipes.find((x) => x.result === s.id)!.prereqs.every((q) => !known.has(q)))
+        || (!!bb && !p.bubble!.open && !!bb.parent && !bubbleOpen(bs!.byId.get(bb.parent)!, bs!.byId, knownIds));
       status = p.canStart ? 'learn' : far ? 'dark' : 'locked';
     }
-    return { id: s.id, name: s.name, level: s.level, school: s.school || 'Others', lines, hybrid: isHybrid(lines), status, missing, from, ...(st ? { study: { id: st.id, banked: st.banked, needed: st.needed } } : {}) };
+    const bid = !b.recipes.some((x) => x.result === s.id) ? bs?.of.get(s.id)?.id : undefined;
+    return { id: s.id, name: s.name, level: s.level, school: s.school || 'Others', lines, hybrid: isHybrid(lines), status, missing, from, ...(bid ? { bubble: bid } : {}), ...(st ? { study: { id: st.id, banked: st.banked, needed: st.needed } } : {}) };
   });
   const flat = out.filter((x) => !x.hybrid);
   const names = [...new Set(flat.map((x) => x.school))].sort((a, b2) => (a === 'Others' ? 1 : b2 === 'Others' ? -1 : a.localeCompare(b2)));
   const counts = Object.fromEntries(['known', 'gift', 'studying', 'stopped', 'learn', 'locked', 'hidden', 'dark'].map((k) => [k, out.filter((x) => x.status === k).length]));
-  return { engine: true, schools: names.map((name) => ({ name, spells: flat.filter((x) => x.school === name) })), hybrids: out.filter((x) => x.hybrid), counts };
+  return { engine: true, schools: names.map((name) => ({ name, spells: flat.filter((x) => x.school === name) })), hybrids: out.filter((x) => x.hybrid), counts, ...(bs ? { bubbles: bs.list } : {}) };
 }
 
 // ---- changing a character (each returns what changed; the caller saves the book) -----------------------------

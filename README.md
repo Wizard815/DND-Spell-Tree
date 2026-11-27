@@ -43,6 +43,21 @@ world and shows that world's tree.
   Settings (the same `spellRules` JSON an Alexandria world uses), or import a
   DM's Alexandria spell rules profile with its recipes and lines.
 
+## Spell books and bubbles
+
+The app has every official 5e spell: the 339 SRD 5.2.1 spells with their text,
+and 188 more from the other books (Player's Handbook, Xanathar's, Tasha's,
+Fizban's, Wildemount, Strixhaven and others) as facts only: name, level,
+school, class lists and book. Their descriptions are in the books. Settings →
+Spell books turns any book off for your table; `scripts/data/official-spells.txt`
+is the list (`node scripts/build-official.mjs` rebuilds the JSON).
+
+A spell no recipe teaches sits in a **bubble** of about four spells of its
+school and level. The first bubbles of each school are open from the start.
+Learn any one spell in a bubble and the next bubble on that path opens; the
+rest of the bubble stays open too. Rules → `learning.bubbles` sets the size
+or turns bubbles off (back to "know 2 spells of its school one level lower").
+
 ## Spell requirements
 
 Every spell has requirements. With no recipe, a spell is taught by its

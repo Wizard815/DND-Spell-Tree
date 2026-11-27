@@ -6,11 +6,17 @@ const wizard = () => newCharacter('Mira', { level: 5, casterLevels: { full: 5 },
 
 test('Model: the SRD ships, every spell is on the tree, a new character sees cantrips to learn', () => {
   const b = emptyBook();
-  assert.equal(spells(b).length, 339);
+  assert.equal(spells(b).length, 527, 'the SRD and the official books (facts only)');
   const c = wizard();
   const t = tree(b, c);
   const all = [...t.schools.flatMap((g) => g.spells), ...t.hybrids];
-  assert.equal(all.length, 339);
+  assert.equal(all.length, 527);
+  // Bubbles of about four, every spell in one.
+  assert.ok(t.bubbles!.every((x) => x.spells.length >= 1 && x.spells.length <= 5));
+  assert.equal(t.bubbles!.reduce((n, x) => n + x.spells.length, 0), 527);
+  // A table can turn books off.
+  const lean = { ...emptyBook(), sources: { PHB: false, PHB24: false, XGE: false, TCE: false, FTD: false, EGW: false, SCC: false, AI: false, AAG: false, BMT: false } };
+  assert.equal(spells(lean).length, 339);
   assert.ok(t.schools.some((g) => g.name === 'Evocation'));
   assert.ok(t.hybrids.length > 0, 'spells with two elements sit apart');
   assert.equal(all.find((s) => s.id === 'srd:fire-bolt')!.status, 'learn', 'cantrips have no gate');
@@ -29,7 +35,7 @@ test('Model: the study table for a 3rd-level spell is 13 / 7 / 5 days, 250 / 250
   assert.deepEqual(studyPlan(b, own, 'srd:fireball', 'text').days, { alone: 10, text: 5, mentor: 4 });
   assert.deepEqual(studyPlan(b, { ...c, className: 'Cleric' }, 'srd:fireball', 'text').days, { alone: 13, text: 7, mentor: 5 }, 'no penalty off the list');
   const none = studyPlan(b, wizard(), 'srd:fireball');
-  assert.match(none.missing.join(), /know 2 spells of its school or lines one level lower \(knows 0\)/);
+  assert.match(none.missing.join(), /learn a spell in the .+ bubble/);
 });
 
 test('Model: study, fail, long rest, learn; the scroll; pause and resume', () => {

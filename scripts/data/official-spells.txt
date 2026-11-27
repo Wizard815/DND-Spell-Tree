@@ -1,0 +1,222 @@
+# Official 5e spells outside the SRD: facts only (name, level, school, class
+# lists, book, damage types, concentration, ritual). No rules text: the
+# description is in the book. Columns:
+# name | level | school | classes | book | damage | flags (c = concentration, r = ritual, b = bonus action, x = reaction)
+# Schools: A abjuration, C conjuration, D divination, E enchantment, V evocation, I illusion, N necromancy, T transmutation
+# Classes: A artificer, B bard, C cleric, D druid, P paladin, R ranger, S sorcerer, K warlock, W wizard
+## Player's Handbook (2014) spells not in the SRD
+Armor of Agathys|1|A|K|PHB|Cold|
+Arms of Hadar|1|C|K|PHB|Necrotic|
+Aura of Life|4|A|P|PHB||c
+Aura of Purity|4|A|P|PHB||c
+Aura of Vitality|3|V|P|PHB||c
+Banishing Smite|5|A|P|PHB|Force|cb
+Beast Sense|2|D|D,R|PHB||cr
+Blade Ward|0|A|B,S,K,W|PHB||
+Blinding Smite|3|V|P|PHB|Radiant|cb
+Branding Smite|2|V|P|PHB|Radiant|cb
+Circle of Power|5|A|P|PHB||c
+Cloud of Daggers|2|C|B,S,K,W|PHB|Slashing|c
+Compelled Duel|1|E|P|PHB||cb
+Conjure Barrage|3|C|R|PHB|Piercing|
+Conjure Volley|5|C|R|PHB|Piercing|
+Cordon of Arrows|2|T|R|PHB|Piercing|
+Crown of Madness|2|E|B,S,K,W|PHB||c
+Crusader's Mantle|3|V|P|PHB|Radiant|c
+Destructive Wave|5|V|P|PHB|Thunder,Radiant|
+Dissonant Whispers|1|E|B|PHB|Psychic|
+Elemental Weapon|3|T|A,P|PHB||c
+Ensnaring Strike|1|C|R|PHB|Piercing|cb
+Friends|0|E|B,S,K,W|PHB||c
+Grasping Vine|4|C|D,R|PHB||cb
+Hail of Thorns|1|C|R|PHB|Piercing|cb
+Hex|1|E|K|PHB|Necrotic|cb
+Hunger of Hadar|3|C|K|PHB|Cold,Acid|c
+Lightning Arrow|3|T|R|PHB|Lightning|b
+Phantasmal Force|2|I|B,S,W|PHB|Psychic|c
+Power Word Heal|9|V|B,C|PHB||
+Ray of Sickness|1|N|S,W|PHB|Poison|
+Searing Smite|1|V|P|PHB|Fire|cb
+Staggering Smite|4|E|P|PHB|Psychic|cb
+Swift Quiver|5|T|R|PHB||cb
+Telepathy|8|E|W|PHB||
+Thorn Whip|0|T|A,D|PHB|Piercing|
+Thunderous Smite|1|V|P|PHB|Thunder|cb
+Tsunami|8|C|D|PHB|Bludgeoning|c
+Witch Bolt|1|V|S,K,W|PHB|Lightning|c
+Wrathful Smite|1|V|P|PHB|Psychic|cb
+## Player's Handbook (2024) spells not in the SRD
+Arcane Vigor|2|A|S,W|PHB24||b
+Divine Smite|1|V|P|PHB24|Radiant|b
+Fount of Moonlight|4|V|B,D|PHB24|Radiant|c
+Jallarzi's Storm of Radiance|5|V|K,W|PHB24|Radiant,Thunder|c
+Power Word Fortify|7|E|B,C|PHB24||
+Shining Smite|2|T|P|PHB24|Radiant|cb
+Sorcerous Burst|0|V|S|PHB24|Acid,Cold,Fire,Lightning,Poison,Psychic,Thunder|
+Starry Wisp|0|V|B,D|PHB24|Radiant|
+Summon Dragon|5|C|W|PHB24|Force|c
+Tasha's Bubbling Cauldron|6|C|K,W|PHB24||
+Yolande's Regal Presence|5|E|B,W|PHB24|Psychic|c
+## Xanathar's Guide to Everything
+Abi-Dalzim's Horrid Wilting|8|N|S,W|XGE|Necrotic|
+Absorb Elements|1|A|A,D,R,S,W|XGE|Acid,Cold,Fire,Lightning,Thunder|x
+Aganazzar's Scorcher|2|V|S,W|XGE|Fire|
+Beast Bond|1|D|D,R|XGE||c
+Bones of the Earth|6|T|D|XGE|Bludgeoning|
+Catapult|1|T|A,S,W|XGE|Bludgeoning|
+Catnap|3|E|A,B,S,W|XGE||
+Cause Fear|1|N|K,W|XGE||c
+Ceremony|1|A|C,P|XGE||r
+Chaos Bolt|1|V|S|XGE|Acid,Cold,Fire,Force,Lightning,Poison,Psychic,Thunder|
+Charm Monster|4|E|B,D,S,K,W|XGE||
+Control Flames|0|T|D,S,W|XGE||
+Control Winds|5|T|D,S,W|XGE||c
+Create Bonfire|0|C|A,D,S,K,W|XGE|Fire|c
+Create Homunculus|6|T|W|XGE|Piercing|
+Crown of Stars|7|V|S,K,W|XGE|Radiant|
+Danse Macabre|5|N|K,W|XGE||c
+Dawn|5|V|C,W|XGE|Radiant|c
+Dragon's Breath|2|T|A,S,W|XGE|Acid,Cold,Fire,Lightning,Poison|cb
+Druid Grove|6|A|D|XGE||
+Dust Devil|2|C|A,D,S,W|XGE|Bludgeoning|c
+Earthbind|2|T|D,S,K,W|XGE||c
+Earth Tremor|1|V|B,D,S,W|XGE|Bludgeoning|
+Elemental Bane|4|T|A,D,K,W|XGE||c
+Enemies Abound|3|E|B,K,S,W|XGE||c
+Enervation|5|N|S,K,W|XGE|Necrotic|c
+Erupting Earth|3|T|D,S,W|XGE|Bludgeoning|
+Far Step|5|C|S,K,W|XGE||cb
+Find Greater Steed|4|C|P|XGE||
+Flame Arrows|3|T|A,D,R,S,W|XGE|Fire|c
+Frostbite|0|V|A,D,S,K,W|XGE|Cold|
+Guardian of Nature|4|T|D,R|XGE||cb
+Gust|0|T|D,S,W|XGE||
+Healing Spirit|2|C|D,R|XGE||cb
+Holy Weapon|5|V|C,P|XGE|Radiant|cb
+Ice Knife|1|C|D,S,W|XGE|Piercing,Cold|
+Illusory Dragon|8|I|W|XGE|Acid,Cold,Fire,Lightning,Necrotic,Poison|c
+Immolation|5|V|S,W|XGE|Fire|c
+Infernal Calling|5|C|K,W|XGE||c
+Infestation|0|C|D,S,K,W|XGE|Piercing|
+Investiture of Flame|6|T|D,S,K,W|XGE|Fire|c
+Investiture of Ice|6|T|D,S,K,W|XGE|Cold|c
+Investiture of Stone|6|T|D,S,K,W|XGE||c
+Investiture of Wind|6|T|D,S,K,W|XGE|Bludgeoning|c
+Invulnerability|9|A|W|XGE||c
+Life Transference|3|N|C,W|XGE|Necrotic|
+Maddening Darkness|8|V|K,W|XGE|Psychic|c
+Maelstrom|5|V|D|XGE|Bludgeoning|c
+Magic Stone|0|T|A,D,K|XGE|Bludgeoning|b
+Mass Polymorph|9|T|B,S,W|XGE||c
+Maximilian's Earthen Grasp|2|T|S,W|XGE|Bludgeoning|c
+Melf's Minute Meteors|3|V|S,W|XGE|Fire|c
+Mental Prison|6|I|S,K,W|XGE|Psychic|c
+Mighty Fortress|8|C|W|XGE||
+Mind Spike|2|D|S,K,W|XGE|Psychic|c
+Mold Earth|0|T|D,S,W|XGE||
+Negative Energy Flood|5|N|K,W|XGE|Necrotic|
+Power Word Pain|7|E|S,K,W|XGE||
+Primal Savagery|0|T|D|XGE|Acid|
+Primordial Ward|6|A|D|XGE||c
+Psychic Scream|9|E|B,S,K,W|XGE|Psychic|
+Pyrotechnics|2|T|A,S,W|XGE||
+Scatter|6|C|S,K,W|XGE||
+Shadow Blade|2|I|S,K,W|XGE|Psychic|cb
+Shadow of Moil|4|N|K|XGE|Necrotic|c
+Shape Water|0|T|D,S,W|XGE||
+Sickening Radiance|4|V|S,K,W|XGE|Radiant|c
+Skill Empowerment|5|T|A,B,S,W|XGE||c
+Skywrite|2|T|A,B,D,W|XGE||cr
+Snare|1|A|A,D,R,W|XGE||
+Snilloc's Snowball Swarm|2|V|S,W|XGE|Cold|
+Soul Cage|6|N|K,W|XGE||x
+Steel Wind Strike|5|C|R,W|XGE|Force|
+Storm Sphere|4|V|S,W|XGE|Bludgeoning,Lightning|c
+Summon Greater Demon|4|C|K,W|XGE||c
+Summon Lesser Demons|3|C|K,W|XGE||c
+Synaptic Static|5|E|B,S,K,W|XGE|Psychic|
+Temple of the Gods|7|C|C|XGE||
+Tenser's Transformation|6|T|W|XGE||c
+Thunder Step|3|C|S,K,W|XGE|Thunder|
+Thunderclap|0|V|A,B,D,S,K,W|XGE|Thunder|
+Tidal Wave|3|C|D,S,W|XGE|Bludgeoning|
+Tiny Servant|3|T|A,W|XGE||
+Toll the Dead|0|N|C,K,W|XGE|Necrotic|
+Transmute Rock|5|T|A,D,W|XGE||
+Vitriolic Sphere|4|V|S,W|XGE|Acid|
+Wall of Light|5|V|S,K,W|XGE|Radiant|c
+Wall of Sand|3|V|W|XGE||c
+Wall of Water|3|V|D,S,W|XGE||c
+Warding Wind|2|V|B,D,S,W|XGE||c
+Watery Sphere|4|C|D,S,W|XGE||c
+Whirlwind|7|V|D,S,W|XGE|Bludgeoning|c
+Word of Radiance|0|V|C|XGE|Radiant|
+Wrath of Nature|5|V|D,R|XGE|Slashing,Bludgeoning|c
+Zephyr Strike|1|T|R|XGE||cb
+## Tasha's Cauldron of Everything (and the Sword Coast Adventurer's Guide cantrips)
+Blade of Disaster|9|C|S,K,W|TCE|Force|cb
+Booming Blade|0|V|A,S,K,W|TCE|Thunder|
+Dream of the Blue Veil|7|C|B,S,K,W|TCE||
+Green-Flame Blade|0|V|A,S,K,W|TCE|Fire|
+Intellect Fortress|3|A|A,B,S,K,W|TCE||c
+Lightning Lure|0|V|A,S,K,W|TCE|Lightning|
+Mind Sliver|0|E|S,K,W|TCE|Psychic|
+Spirit Shroud|3|N|C,P,K,W|TCE|Radiant,Necrotic,Cold|cb
+Summon Aberration|4|C|K,W|TCE|Psychic|c
+Summon Beast|2|C|D,R|TCE|Piercing|c
+Summon Celestial|5|C|C,P|TCE|Radiant|c
+Summon Construct|4|C|A,W|TCE|Bludgeoning|c
+Summon Elemental|4|C|A,D,R,W|TCE|Bludgeoning|c
+Summon Fey|3|C|D,R,K,W|TCE|Force|c
+Summon Fiend|6|C|K,W|TCE|Fire|c
+Summon Shadowspawn|3|C|K,W|TCE|Psychic|c
+Summon Undead|3|N|K,W|TCE|Necrotic|c
+Sword Burst|0|C|A,S,K,W|TCE|Force|
+Tasha's Caustic Brew|1|V|A,S,W|TCE|Acid|c
+Tasha's Mind Whip|2|E|S,W|TCE|Psychic|
+Tasha's Otherworldly Guise|6|T|S,K,W|TCE||cb
+## Fizban's Treasury of Dragons
+Ashardalon's Stride|3|T|A,R,S,W|FTD|Fire|cb
+Draconic Transformation|7|T|D,S,W|FTD|Force|cb
+Fizban's Platinum Shield|6|A|A,S,W|FTD||cb
+Nathair's Mischief|2|I|B,S,W|FTD||c
+Raulothim's Psychic Lance|4|E|B,S,K,W|FTD|Psychic|
+Rime's Binding Ice|2|V|S,W|FTD|Cold|
+Summon Draconic Spirit|5|C|D,S,W|FTD|Acid,Cold,Fire,Lightning,Poison|c
+## Explorer's Guide to Wildemount (dunamancy)
+Dark Star|8|V|W|EGW|Force|c
+Fortune's Favor|2|D|W|EGW||
+Frost Fingers|1|V|W|EGW|Cold|
+Gift of Alacrity|1|D|W|EGW||
+Gravity Fissure|6|V|W|EGW|Force|
+Gravity Sinkhole|4|V|W|EGW|Force|
+Immovable Object|2|T|W|EGW||
+Magnify Gravity|1|T|W|EGW|Force|
+Pulse Wave|3|V|W|EGW|Force|
+Ravenous Void|9|V|W|EGW|Force|c
+Reality Break|8|C|W|EGW|Psychic,Force|c
+Sapping Sting|0|N|W|EGW|Necrotic|
+Temporal Shunt|5|T|W|EGW||x
+Tether Essence|7|N|W|EGW||c
+Time Ravage|9|N|W|EGW|Necrotic|
+Wristpocket|2|C|W|EGW||cr
+## Strixhaven: A Curriculum of Chaos
+Borrowed Knowledge|2|D|B,C,K,W|SCC||
+Kinetic Jaunt|2|T|A,B,S,W|SCC||cb
+Silvery Barbs|1|E|B,S,W|SCC||x
+Vortex Warp|2|C|A,S,W|SCC||
+Wither and Bloom|2|N|D,S,W|SCC|Necrotic|
+## Acquisitions Incorporated
+Distort Value|1|I|B,S,K,W|AI||
+Fast Friends|3|E|B,C,W|AI||c
+Gift of Gab|2|E|B,W|AI||x
+Incite Greed|3|E|C,K,W|AI||c
+Jim's Glowing Coin|2|E|B,S,K,W|AI||
+Jim's Magic Missile|1|V|W|AI|Force|
+Motivational Speech|3|E|B,C|AI||
+## Spelljammer: Adventures in Space
+Air Bubble|2|C|A,D,S,W|AAG||
+Create Spelljamming Helm|5|T|A,W|AAG||
+## The Book of Many Things
+Antagonize|3|E|B,S,K,W|BMT|Psychic|
+Spray of Cards|2|C|B,K,W|BMT|Slashing|

@@ -36,7 +36,7 @@ export function localBackend(store: Store): TreeBackend {
   const withMe = <T>(f: (b: Book, c: Character) => T) => Promise.resolve().then(() => store.change((b) => f(b, me())));
   return {
     tree: async () => tree(store.book, store.character()),
-    spell: async (id) => spellMap(store.book).get(id) ?? null,
+    spell: async (id) => { const s = spellMap(store.book).get(id); return s ? { ...s, book: (s as { book?: string }).book } : null; },
     plan: async (id, source, lab) => studyPlan(store.book, me(), id, source, lab),
     studies: async () => (store.character()?.studies ?? []).map((x) => studyView(store.book, x, store.character())),
     start: (id, o) => withMe((b, c) => startStudy(b, c, id, o)),
