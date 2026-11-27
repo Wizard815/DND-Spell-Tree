@@ -96,7 +96,7 @@ LLC, CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/legalcode).
 
 ## Demo for your table
 
-`VITE_DEMO=1 npx vite build --outDir dist-demo` builds a demo with an example
+`node scripts/build-demo.mjs` builds a demo as one HTML file (`dist-demo/manaweave-demo.html`, opens from a download) with an example
 party mid-campaign: Lyra (wizard 5, studying Fireball), Brother Oren (cleric 5)
 and Kael (paladin 6, studying Calm Emotions). A popup explains the app on first
 launch, and the **Ask** button opens a helper that answers questions about
