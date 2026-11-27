@@ -181,7 +181,7 @@ export function studyPlan(b: Book, c: Character, spellId: string, source: StudyS
   const lines = linesOf(b, s);
   const hybrid = isHybrid(lines);
   const cx = complexity(s.level, costs, s.manaCost ?? null);
-  const needed = studyPoints(cx, { hybrid, extraSpells: rc.id.startsWith('recipe:') ? extraRecipeSpells(rc.prereqs.length, s.level, r) : 0 }, r);
+  const needed = studyPoints(cx, { hybrid, extraSpells: rc.id.startsWith('recipe:') ? extraRecipeSpells(rc.prereqs.length, s.level, r) : 0, ownClass: ownClass(b, c, s.id) }, r);
   const missing: string[] = [];
   if (known.has(s.id)) missing.push('already known');
   for (const m of rc.missingSpells) missing.push(`know ${m}`);
@@ -195,19 +195,18 @@ export function studyPlan(b: Book, c: Character, spellId: string, source: StudyS
     if (g.kind === 'arcana') arcanaDC = g.dc; else missing.push(gateText(g));
   }
   const gate = r.learning.gates[Math.max(0, Math.min(9, s.level))];
-  const own = ownClass(b, c, s.id);
   const coin = studyCoin(cx, source, r);
   return {
     spellId: s.id, name: s.name, level: s.level, recipe: { id: rc.id, prereqs: rc.byName }, source, lab, hybrid, missing, canStart: missing.length === 0, arcanaDC, needed,
-    perDay: dailyProgress(source, lab, r, own),
-    days: Object.fromEntries(STUDY_SOURCES.map((x) => [x, gate.sources.includes(x) ? studyDays(needed, 0, dailyProgress(x, lab, r, own)) : null])) as StudyPlan['days'],
+    perDay: dailyProgress(source, lab, r),
+    days: Object.fromEntries(STUDY_SOURCES.map((x) => [x, gate.sources.includes(x) ? studyDays(needed, 0, dailyProgress(x, lab, r)) : null])) as StudyPlan['days'],
     materials: coin.materials, mentorFee: coin.mentorFee,
     gold: Object.fromEntries(STUDY_SOURCES.map((x) => { const g = studyCoin(cx, x, r); return [x, g.materials + g.mentorFee]; })) as StudyPlan['gold'],
     finalDC: finalCheckDC(s.level, r), checkBonus: checkBonus(c), scrollPoints: scrollRule(s.level, needed, r).points,
   };
 }
 
-/** Whether a spell is on the character's own class list ("Wizard", "Wizard 6 / Paladin 4"): it studies faster (learning.classBonus). */
+/** Whether a spell is on the character's own class list ("Wizard", "Wizard 6 / Paladin 4"): it needs fewer study points (learning.classDiscount). */
 export function ownClass(b: Book, c: Character | null | undefined, spellId: string): boolean {
   const text = String(c?.className ?? '').toLowerCase();
   const s = spellMap(b).get(spellId);
@@ -216,7 +215,7 @@ export function ownClass(b: Book, c: Character | null | undefined, spellId: stri
 
 export function studyView(b: Book, x: LocalStudy, c?: Character | null): Study {
   const r = rulesOf(b);
-  const per = dailyProgress(x.source, x.lab, r, ownClass(b, c, x.spellId));
+  const per = dailyProgress(x.source, x.lab, r);
   const { createdAt: _c, ...rest } = x;
   return { ...rest, name: spellMap(b).get(x.spellId)?.name ?? x.spellId, perDay: per, daysLeft: studyDays(x.needed, x.banked, per) };
 }
@@ -286,7 +285,7 @@ export function studyDaysLog(b: Book, c: Character, sid: string, n: number): Stu
   const x = findStudy(c, sid);
   if (x.status !== 'studying') throw new Error(x.status === 'ready' ? 'The study is complete: roll the final check' : `This study is ${x.status}`);
   if (!Number.isInteger(n) || n < 1 || n > 365) throw new Error('Days must be 1 to 365');
-  x.banked = Math.min(x.needed, x.banked + n * dailyProgress(x.source, x.lab, rulesOf(b), ownClass(b, c, x.spellId)));
+  x.banked = Math.min(x.needed, x.banked + n * dailyProgress(x.source, x.lab, rulesOf(b)));
   x.days += n;
   if (x.banked >= x.needed) x.status = 'ready';
   log(c, { kind: 'study', note: `${n} downtime day${n === 1 ? '' : 's'} studying ${spellMap(b).get(x.spellId)?.name ?? x.spellId}` });
