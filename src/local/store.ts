@@ -4,7 +4,8 @@
 import { active, emptyBook, finalCheck, giveSpell, normalizeBook, scrollCast, spellMap, startStudy, stopStudy, studyDaysLog, studyPlan, studyView, tree, type Book, type Character } from './model.ts';
 import type { TreeBackend } from '../tree/types.ts';
 
-const KEY = 'spelltree.book.v1';
+// The demo keeps its own book, so its example party never mixes with a real one.
+const KEY = import.meta.env?.VITE_DEMO ? 'manaweave.demo.v1' : 'spelltree.book.v1';
 
 export class Store {
   book: Book;
