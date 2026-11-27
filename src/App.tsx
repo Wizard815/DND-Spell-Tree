@@ -3,15 +3,19 @@
 import { useMemo, useState, useSyncExternalStore } from 'react';
 import SpellTree from './tree/SpellTree.tsx';
 import { localBackend, Store } from './local/store.ts';
-import { checkBonus, highest, manaNow, poolMax, randomCharacter, rulesOf } from './local/model.ts';
+import { checkBonus, highest, manaNow, poolMax, rulesOf } from './local/model.ts';
 import { alexandriaBackend, loadLink, saveLink, type Link } from './alexandria/client.ts';
 import CharacterPage from './pages/Character.tsx';
 import SettingsPage from './pages/Settings.tsx';
 import { Characters } from './pages/Characters.tsx';
+import Helper from './demo/Helper.tsx';
+import Welcome from './demo/Welcome.tsx';
+import { demoParty } from './demo/party.ts';
+import { APP_NAME } from './name.ts';
 
 const store = new Store();
-// The demo build (VITE_DEMO=1) starts with a random character to play with.
-if (import.meta.env.VITE_DEMO && !store.book.characters.length) store.change((b) => { const n = randomCharacter(b); b.characters.push(n); b.activeId = n.id; });
+// The demo build (VITE_DEMO=1) starts with an example party mid-campaign.
+if (import.meta.env.VITE_DEMO && !store.book.characters.length) store.change((b) => { const p = demoParty(b); b.characters.push(...p); b.activeId = p[0].id; });
 type Tab = 'tree' | 'character' | 'settings';
 
 export default function App() {
@@ -31,7 +35,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="top">
-        <div className="brand"><span aria-hidden="true">✦</span> Spell Tree</div>
+        <div className="brand"><span aria-hidden="true">✦</span> {APP_NAME}</div>
         <nav className="tabs" aria-label="Pages">
           {(['tree', 'character', 'settings'] as Tab[]).map((t) => (
             <button key={t} type="button" aria-current={tab === t ? 'page' : undefined} onClick={() => { setTab(t); setEditSpell(null); }}>{t === 'tree' ? 'Tree' : t === 'character' ? 'Character' : 'Settings'}</button>
@@ -67,6 +71,8 @@ export default function App() {
           : <CharacterPage store={store} />)}
         {tab === 'settings' && <SettingsPage store={store} link={link} setLink={setLink} focus={editSpell} />}
       </main>
+      {!onAlex && <Helper store={store} />}
+      <Welcome demo={!!import.meta.env.VITE_DEMO} />
     </div>
   );
 }

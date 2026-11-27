@@ -1,4 +1,4 @@
-# Spell Tree
+# Manaweave
 
 A D&D 5e spell tree with mana, studying and learning spells. It runs on its
 own (install it on a phone or desktop; it works offline and keeps characters
@@ -93,3 +93,12 @@ engine here.
 
 Code: MIT. Spells: System Reference Document 5.2.1 by Wizards of the Coast
 LLC, CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/legalcode).
+
+## Demo for your table
+
+`VITE_DEMO=1 npx vite build --outDir dist-demo` builds a demo with an example
+party mid-campaign: Lyra (wizard 5, studying Fireball), Brother Oren (cleric 5)
+and Kael (paladin 6, studying Calm Emotions). A popup explains the app on first
+launch, and the **Ask** button opens a helper that answers questions about
+spells, study, mana and the rules. It searches the spell list and the app's own
+numbers, with no AI model.

@@ -1,6 +1,6 @@
 {
-  "name": "Spell Tree",
-  "short_name": "Spell Tree",
+  "name": "Manaweave",
+  "short_name": "Manaweave",
   "description": "A D&D spell tree with mana, studying and learning spells.",
   "start_url": "./",
   "scope": "./",

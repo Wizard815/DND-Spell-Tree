@@ -25,6 +25,9 @@ try {
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
     page.on('dialog', (d) => d.accept());
     await page.goto(`http://localhost:${port}/`);
+    // The first-launch popup, then gone for good.
+    await page.getByRole('dialog', { name: 'Manaweave' }).waitFor();
+    await page.getByRole('dialog').getByRole('button', { name: 'Start' }).click();
     await page.getByRole('button', { name: 'New character' }).click();
     await page.getByLabel('Name').fill('Mira');
     await page.getByLabel('Level').fill('5');
@@ -36,6 +39,12 @@ try {
     await page.getByRole('button', { name: 'Add', exact: true }).click();
     await page.getByRole('button', { name: 'Tree' }).click();
     await page.getByRole('group', { name: 'Evocation' }).waitFor();
+    // The helper answers from the plan's own numbers.
+    await page.getByRole('button', { name: 'Ask', exact: true }).first().click();
+    await page.getByLabel('Your question').fill('How long to learn Fireball?');
+    await page.getByLabel('Helper').getByRole('button', { name: 'Ask', exact: true }).click();
+    await page.getByText(/Fireball \(level 3\) for Mira: 13 study points/).waitFor();
+    await page.getByRole('button', { name: 'Close', exact: true }).click();
     if (shots) await page.screenshot({ path: `${shots}/tree-${vp.width}.png`, fullPage: false });
     // Fireball can be learned: the study table is the plan's.
     // Find it by search (Enter opens it and brings it into view), check its node, then close and click the node itself.
