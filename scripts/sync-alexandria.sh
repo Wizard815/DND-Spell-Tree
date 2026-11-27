@@ -10,5 +10,6 @@ mkdir -p "$dest"
 for f in types.ts treeCss.ts icons.tsx TreeGraph.tsx SpellTree.tsx; do
   { echo "// Copied from Wizard815/DND-Spell-Tree src/tree/$f by scripts/sync-alexandria.sh: change it there."; cat "$here/src/tree/$f"; } > "$dest/$f"
 done
-cp "$alx/librarian/src/features/spells/rules.ts" "$here/src/engine/rules.ts"
+cp "$alx/librarian/src/features/spells/rules.ts" "$alx/librarian/src/features/spells/bubbles.ts" "$here/src/engine/"
+cp "$here/src/data/official-spells.json" "$alx/librarian/src/features/spells/data/official-spells.json"
 echo "Synced the tree into $dest and rules.ts into src/engine."
