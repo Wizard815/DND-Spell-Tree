@@ -106,7 +106,8 @@ engine here.
 
 ## License
 
-Code: MIT. Spells: System Reference Document 5.2.1 by Wizards of the Coast
+Code: [PolyForm Shield License 1.0.0](LICENSE). [LICENSING.md](LICENSING.md)
+explains in plain English what you can and can't do with it. Spells: System Reference Document 5.2.1 by Wizards of the Coast
 LLC, CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/legalcode).
 
 ## Demo for your table
